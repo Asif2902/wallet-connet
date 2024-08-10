@@ -15,40 +15,34 @@
       border-radius: 5px;
     }
   </style>
-  <!-- Include the WalletConnect CDN -->
-  <script src="https://unpkg.com/@walletconnect/client@2.0.0/dist/umd/index.min.js"></script>
-  <script src="https://unpkg.com/ethers@5.2.umd.min.js"></script>
+  <!-- Load Web3Modal CDN -->
+  <script src="https://unpkg.com/@web3modal/standalone@2.0.0/dist/index.js"></script>
+  <!-- Load Ethers.js CDN -->
+  <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
 </head>
 <body>
   <button id="wallet-connect-button">Connect Wallet</button>
   <p id="wallet-address"></p>
 
   <script>
-    // Define the chain ID and RPC URL
-    const TAIKO_CHAIN_ID = 167000;
-    const RPC_URL = "https://rpc.taiko.tools";
+    // Initialize Web3Modal with WalletConnect as a provider
+    const web3Modal = new window.Web3Modal({
+      projectId: "ffdf316e7b8b6f35146a5159560a54ae", // Replace with your WalletConnect Project ID
+      walletConnectVersion: 2, // Explicitly set to use WalletConnect v2
+    });
 
     const connectWallet = async () => {
       try {
-        const walletConnect = new WalletConnect.Client.default({
-          projectId: "ffdf316e7b8b6f35146a5159560a54ae", // Replace with your WalletConnect Project ID
-          relayProvider: "wss://relay.walletconnect.com", // Replace with WalletConnect relay server URL if necessary
-        });
+        const instance = await web3Modal.connect();
 
-        const connection = await walletConnect.connect({
-          chains: [TAIKO_CHAIN_ID],
-          rpcMap: {
-            [TAIKO_CHAIN_ID]: RPC_URL,
-          },
-        });
-
-        const provider = new ethers.providers.Web3Provider(connection);
+        // Use Ethers.js to interact with the connected wallet
+        const provider = new ethers.providers.Web3Provider(instance);
         const signer = provider.getSigner();
         const address = await signer.getAddress();
 
         document.getElementById("wallet-address").textContent = `Connected: ${address}`;
 
-        connection.on("disconnect", () => {
+        instance.on("disconnect", () => {
           document.getElementById("wallet-address").textContent = "Disconnected";
         });
 
