@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WalletConnect v2 Integration</title>
+  <style>
+    #wallet-connect-button {
+      padding: 10px 20px;
+      background-color: #0057FF;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 5px;
+    }
+  </style>
+  <!-- Include the WalletConnect CDN -->
+  <script src="https://unpkg.com/@walletconnect/client@2.0.0/dist/umd/index.min.js"></script>
+  <script src="https://unpkg.com/ethers@5.2.umd.min.js"></script>
+</head>
+<body>
+  <button id="wallet-connect-button">Connect Wallet</button>
+  <p id="wallet-address"></p>
+
+  <script>
+    // Define the chain ID and RPC URL
+    const TAIKO_CHAIN_ID = 167000;
+    const RPC_URL = "https://rpc.taiko.tools";
+
+    const connectWallet = async () => {
+      try {
+        const walletConnect = new WalletConnect.Client.default({
+          projectId: "ffdf316e7b8b6f35146a5159560a54ae", // Replace with your WalletConnect Project ID
+          relayProvider: "wss://relay.walletconnect.com", // Replace with WalletConnect relay server URL if necessary
+        });
+
+        const connection = await walletConnect.connect({
+          chains: [TAIKO_CHAIN_ID],
+          rpcMap: {
+            [TAIKO_CHAIN_ID]: RPC_URL,
+          },
+        });
+
+        const provider = new ethers.providers.Web3Provider(connection);
+        const signer = provider.getSigner();
+        const address = await signer.getAddress();
+
+        document.getElementById("wallet-address").textContent = `Connected: ${address}`;
+
+        connection.on("disconnect", () => {
+          document.getElementById("wallet-address").textContent = "Disconnected";
+        });
+
+      } catch (error) {
+        console.error("Failed to connect:", error);
+      }
+    };
+
+    document.getElementById("wallet-connect-button").addEventListener("click", connectWallet);
+  </script>
+</body>
+</html>
