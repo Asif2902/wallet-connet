@@ -15,9 +15,8 @@
       border-radius: 5px;
     }
   </style>
-  <!-- Load Web3Modal CDN -->
-  <script src="https://unpkg.com/@web3modal/standalone@2.0.0/dist/index.js"></script>
-  <!-- Load Ethers.js CDN -->
+  <!-- Include the WalletConnect and Web3Modal script via CDN -->
+  <script src="https://unpkg.com/@walletconnect/web3modal@1.0.0/dist/umd/index.min.js"></script>
   <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
 </head>
 <body>
@@ -25,10 +24,21 @@
   <p id="wallet-address"></p>
 
   <script>
-    // Initialize Web3Modal with WalletConnect as a provider
-    const web3Modal = new window.Web3Modal({
-      projectId: "ffdf316e7b8b6f35146a5159560a54ae", // Replace with your WalletConnect Project ID
-      walletConnectVersion: 2, // Explicitly set to use WalletConnect v2
+    // Initialize Web3Modal
+    const providerOptions = {
+      walletconnect: {
+        package: WalletConnectProvider.default,
+        options: {
+          rpc: {
+            167000: "https://rpc.taiko.tools", // Taiko Mainnet RPC URL
+          },
+        },
+      },
+    };
+
+    const web3Modal = new Web3Modal.default({
+      cacheProvider: false,
+      providerOptions,
     });
 
     const connectWallet = async () => {
